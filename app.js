@@ -665,7 +665,7 @@
   mapTabs.addEventListener('click', (event) => {
     const tab = event.target.closest('.map-tab');
     if (!tab) return;
-    if (tab.dataset.map === 'kolguyev') {
+    if (tab.dataset.map !== 'everon') {
       mapTabMessage.hidden = false;
       document.querySelector('#everon-tab').focus();
       return;

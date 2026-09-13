@@ -31,7 +31,7 @@ h1 { margin: 8px 0 7px; font-family: "Stardos Stencil", Georgia, "Times New Roma
 .tooltip:hover .tooltip-card, .tooltip:focus .tooltip-card, .tooltip:focus-within .tooltip-card { opacity: 1; visibility: visible; transform: translateY(0); }
 .tooltip:focus-visible { border-radius: 3px; box-shadow: 0 0 0 3px rgba(239,199,94,.18); }
 .map-tabs-wrap { margin: -7px 0 18px; }
-.map-tabs { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid #344139; }
+.map-tabs { display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid #344139; }
 .map-tab { min-height: 40px; border: 0; border-bottom: 3px solid transparent; border-radius: 0; background: transparent; color: #7e8b83; font-size: .82rem; letter-spacing: .06em; text-transform: uppercase; }
 .map-tab:hover, .map-tab:focus-visible { background: rgba(255,255,255,.045); color: #d3dcd6; outline: none; }
 .map-tab.active { border-bottom-color: var(--gold); color: var(--gold); }

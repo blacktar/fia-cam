@@ -510,13 +510,13 @@
 
   async function preparePhoto(file) {
     const image = await loadImageFile(file);
-    const maximumSide = 2400;
+    const maximumSide = 3200;
     const ratio = Math.min(1, maximumSide / Math.max(image.naturalWidth, image.naturalHeight));
     const output = document.createElement('canvas');
     output.width = Math.max(1, Math.round(image.naturalWidth * ratio));
     output.height = Math.max(1, Math.round(image.naturalHeight * ratio));
     output.getContext('2d').drawImage(image, 0, 0, output.width, output.height);
-    return output.toDataURL('image/jpeg', .92);
+    return output.toDataURL('image/jpeg', .9);
   }
 
   document.querySelector('#open-scanner').addEventListener('click', () => {

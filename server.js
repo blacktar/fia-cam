@@ -120,19 +120,81 @@ function extractCoordinates(text) {
   return (continuousCoordinates.length > coordinates.length ? continuousCoordinates : coordinates).slice(0, 5);
 }
 
+function targetRectanglesFromTsv(tsv) {
+  if (typeof tsv !== 'string' || !tsv.trim()) return [];
+  const rows = tsv.trim().split(/\r?\n/).map((line) => line.split('\t'));
+  const page = rows.find((row) => row[0] === '1');
+  const imageWidth = Number(page?.[8]);
+  const imageHeight = Number(page?.[9]);
+  if (!imageWidth || !imageHeight) return [];
+
+  return rows
+    .filter((row) => row[0] === '5' && (row[11] || '').replace(/\D/g, '').length >= 4)
+    .sort((a, b) => Number(b[10]) - Number(a[10]))
+    .map((row) => {
+      const left = Number(row[6]);
+      const top = Number(row[7]);
+      const width = Number(row[8]);
+      const height = Number(row[9]);
+      const regionWidth = Math.min(imageWidth, Math.max(width * 6, imageWidth * .18));
+      const regionHeight = Math.min(imageHeight, Math.max(height * 16, imageHeight * .18));
+      return {
+        left: Math.max(0, Math.round(left + width / 2 - regionWidth / 2)),
+        top: Math.max(0, Math.round(top + height / 2 - regionHeight / 2)),
+        width: Math.round(regionWidth),
+        height: Math.round(regionHeight)
+      };
+    })
+    .map((rectangle) => ({
+      ...rectangle,
+      width: Math.min(rectangle.width, imageWidth - rectangle.left),
+      height: Math.min(rectangle.height, imageHeight - rectangle.top)
+    }))
+    .filter((rectangle, index, rectangles) =>
+      rectangles.findIndex((candidate) =>
+        Math.abs(candidate.left - rectangle.left) < imageWidth * .05 &&
+        Math.abs(candidate.top - rectangle.top) < imageHeight * .05
+      ) === index
+    )
+    .slice(0, 2);
+}
+
 async function recognizeCoordinates(image) {
   const worker = await getOcrWorker();
   const attempts = [];
+  const targetRectangles = [];
   for (const pageMode of ['6', '11']) {
     await worker.setParameters({
       tessedit_char_whitelist: '0123456789 ',
       tessedit_pageseg_mode: pageMode,
-      preserve_interword_spaces: '1'
+      preserve_interword_spaces: '1',
+      user_defined_dpi: '300'
     });
-    const result = await worker.recognize(image, { rotateAuto: true });
+    const result = await worker.recognize(image, { rotateAuto: false }, { text: true, tsv: true });
     if (process.env.OCR_DEBUG === '1') console.log('OCR text:', JSON.stringify(result.data.text));
     attempts.push(extractCoordinates(result.data.text));
+    targetRectangles.push(...targetRectanglesFromTsv(result.data.tsv));
     if (attempts.at(-1).length === 5) break;
+  }
+
+  const uniqueTargets = targetRectangles.filter((rectangle, index, rectangles) =>
+    rectangles.findIndex((candidate) =>
+      Math.abs(candidate.left - rectangle.left) < 40 &&
+      Math.abs(candidate.top - rectangle.top) < 40
+    ) === index
+  ).slice(0, 2);
+
+  if (!attempts.some((attempt) => attempt.length === 5)) {
+    for (const rectangle of uniqueTargets) {
+      for (const pageMode of ['6', '11']) {
+        await worker.setParameters({ tessedit_pageseg_mode: pageMode });
+        const result = await worker.recognize(image, { rectangle });
+        if (process.env.OCR_DEBUG === '1') console.log('Targeted OCR:', rectangle, JSON.stringify(result.data.text));
+        attempts.push(extractCoordinates(result.data.text));
+        if (attempts.at(-1).length === 5) break;
+      }
+      if (attempts.at(-1).length === 5) break;
+    }
   }
   return attempts.sort((a, b) => b.length - a.length)[0] || [];
 }

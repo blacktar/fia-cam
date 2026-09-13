@@ -1,6 +1,6 @@
 {
   "name": "everon-fia-cache-mapper",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "private": true,
   "description": "FIA CaM — an Everon shopping-list mapper with camera OCR.",
   "scripts": { "start": "node server.js" },

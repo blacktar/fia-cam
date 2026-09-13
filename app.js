@@ -28,6 +28,8 @@
   const rowsHost = document.querySelector('#coordinate-rows');
   const legend = document.querySelector('#legend');
   const count = document.querySelector('#location-count');
+  const shareButton = document.querySelector('#share-locations');
+  const shareStatus = document.querySelector('#share-status');
   const readout = document.querySelector('#cursor-readout');
   const loading = document.querySelector('#loading');
   const tileCache = new Map();
@@ -334,6 +336,8 @@
 
   function updateLegend() {
     count.textContent = String(state.points.length);
+    shareButton.hidden = state.points.length !== 5;
+    if (shareButton.hidden) shareStatus.textContent = '';
     if (!state.points.length) {
       legend.innerHTML = '<p class="empty-state">No locations plotted yet.</p>';
       return;
@@ -346,13 +350,49 @@
       </button>`).join('');
   }
 
+  function shareUrl() {
+    const url = new URL(location.href);
+    url.search = '';
+    url.hash = '';
+    url.searchParams.set('locations', [...state.points]
+      .sort((a, b) => a.index - b.index)
+      .map((point) => `${String(point.e).padStart(3, '0')}${String(point.n).padStart(3, '0')}`)
+      .join(','));
+    return url.href;
+  }
+
+  async function copyShareUrl(url) {
+    if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(url);
+    const field = document.createElement('textarea');
+    field.value = url;
+    field.setAttribute('readonly', '');
+    field.style.position = 'fixed';
+    field.style.opacity = '0';
+    document.body.append(field);
+    field.select();
+    const copied = document.execCommand('copy');
+    field.remove();
+    if (!copied) throw new Error('Copy failed');
+  }
+
+  function sharedCoordinates() {
+    const encoded = new URL(location.href).searchParams.get('locations');
+    if (!encoded) return null;
+    const entries = encoded.split(',');
+    if (entries.length !== 5 || entries.some((entry) => !/^\d{6}$/.test(entry))) return null;
+    const pairs = entries.map((entry) => [Number(entry.slice(0, 3)), Number(entry.slice(3))]);
+    if (pairs.some(([easting, northing]) => easting < MAP.minE || easting > MAP.maxE || northing < MAP.minN || northing > MAP.maxN)) return null;
+    return pairs;
+  }
+
   function save() {
     localStorage.setItem('everon-fia-coordinates', JSON.stringify(rowEls.map((row) => [...row.querySelectorAll('input')].map((input) => input.value))));
   }
 
   function restore() {
     try {
-      const saved = JSON.parse(localStorage.getItem('everon-fia-coordinates'));
+      const shared = sharedCoordinates();
+      const saved = shared || JSON.parse(localStorage.getItem('everon-fia-coordinates'));
       if (!Array.isArray(saved)) return;
       saved.slice(0, 5).forEach((pair, i) => {
         const fields = rowEls[i].querySelectorAll('input');
@@ -361,6 +401,7 @@
       });
       state.points = parseRows();
       updateLegend();
+      if (shared) save();
       if (state.points.length) fitPoints(state.points);
     } catch (_) { /* Ignore malformed browser storage. */ }
   }
@@ -552,6 +593,27 @@
   });
 
   useScanButton.addEventListener('click', applyScannedCoordinates);
+
+  shareButton.addEventListener('click', async () => {
+    if (state.points.length !== 5) return;
+    const url = shareUrl();
+    const data = {
+      title: 'FIA Cache Mapper locations',
+      text: 'FIA cache locations for this game session',
+      url
+    };
+    try {
+      if (navigator.share && (!navigator.canShare || navigator.canShare(data))) {
+        await navigator.share(data);
+        shareStatus.textContent = 'Team link shared.';
+      } else {
+        await copyShareUrl(url);
+        shareStatus.textContent = 'Team link copied to clipboard.';
+      }
+    } catch (error) {
+      if (error?.name !== 'AbortError') shareStatus.textContent = 'Could not share automatically. Try again.';
+    }
+  });
 
   document.querySelector('#coordinate-form').addEventListener('submit', (event) => {
     event.preventDefault();

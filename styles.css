@@ -64,6 +64,11 @@ h2 { margin: 0; font-size: .82rem; letter-spacing: .09em; text-transform: upperc
 .legend-code { font: 800 .96rem/1 ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .06em; }
 .legend-hint { color: #76837b; font-size: .72rem; }
 .empty-state { margin: 5px 0; color: #728077; font-size: .86rem; }
+.share-locations { width: 100%; margin-top: 10px; border-color: rgba(239,199,94,.55); background: rgba(239,199,94,.11); color: #f3d780; }
+.share-locations:hover { border-color: var(--gold); background: rgba(239,199,94,.18); }
+.share-locations svg { width: 19px; height: 19px; margin-right: 7px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; vertical-align: -4px; }
+.share-status { min-height: 0; margin: 7px 0 0; color: #9eaaa3; font-size: .76rem; line-height: 1.35; }
+.share-status:empty { display: none; }
 .help { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 5px 12px; color: #67746c; font-size: .72rem; }
 .help b { color: #9aa69f; }
 .legal-notice { margin-top: 13px; padding-top: 12px; border-top: 1px solid #29352e; color: #69766e; font-size: .75rem; line-height: 1.38; }

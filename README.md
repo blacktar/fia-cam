@@ -26,6 +26,8 @@ npm start
 
 The server listens on the port supplied through `PORT`, defaulting to `8080` locally.
 
+OCR requests are limited to three scans per IP address in each rolling minute. Set `OCR_RATE_LIMIT` to a positive whole number to override that default.
+
 ## cPanel deployment
 
 Create a production Node.js application using Node 20 or 22, select `server.js` as its startup file, connect this repository, install its npm dependencies, and restart the application. Do not set `PORT` manually when the hosting platform supplies it.
@@ -39,4 +41,3 @@ This is an unofficial fan-made tool and is not affiliated with or endorsed by Bo
 The high-resolution map was compiled and stitched from in-game screenshots by Steam Community creator Heisenburger. See [their original Steam Community guide](https://steamcommunity.com/sharedfiles/filedetails/?id=2816709014).
 
 OCR is powered by Tesseract.js and the Tesseract OCR engine. See `THIRD_PARTY_NOTICES.txt` and `APACHE-2.0.txt` for licensing information.
-

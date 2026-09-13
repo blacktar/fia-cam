@@ -9,6 +9,7 @@ const ROOT = __dirname;
 const PORT = Number(process.env.PORT || 8080);
 const OCR_CACHE = path.join(ROOT, '.ocr-cache');
 const MAX_BODY = 12 * 1024 * 1024;
+const OCR_RATE_LIMIT = Math.max(1, Number.parseInt(process.env.OCR_RATE_LIMIT || '3', 10) || 3);
 const requestLog = new Map();
 let workerPromise;
 let ocrQueue = Promise.resolve();
@@ -34,7 +35,7 @@ function secureHeaders(response) {
 function withinRateLimit(address) {
   const now = Date.now();
   const recent = (requestLog.get(address) || []).filter((time) => now - time < 60_000);
-  if (recent.length >= 8) return false;
+  if (recent.length >= OCR_RATE_LIMIT) return false;
   recent.push(now);
   requestLog.set(address, recent);
   return true;

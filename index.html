@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111714">
+  <meta name="description" content="Plot FIA shopping-list grid squares on the Everon map.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23111714'/%3E%3Cpath d='M5 5h22v22H5zM5 16h22M16 5v22' fill='none' stroke='%23efc75e' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%23e95f4f' stroke='white' stroke-width='2'/%3E%3C/svg%3E">
+  <title>FIA CaM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Stardos+Stencil:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <aside class="panel">
+      <div class="brand">
+        <div class="eyebrow">FIELD TOOL · EVERON</div>
+        <h1>FIA CaM</h1>
+        <p>Enter the Easting and Northing from the <span class="tooltip" tabindex="0" aria-describedby="shopping-list-tip">shopping list <span class="tooltip-icon" aria-hidden="true">?</span><span class="tooltip-card" id="shopping-list-tip" role="tooltip">You'll find your FIA shopping list in your inventory. It's a list of coordinates to cached supplies. Find them, use them.</span></span>. Empty rows are ignored.</p>
+      </div>
+
+      <form id="coordinate-form" novalidate>
+        <div class="column-labels" aria-hidden="true"><span></span><span>Easting</span><span>Northing</span></div>
+        <div id="coordinate-rows"></div>
+        <button class="scan-trigger" id="open-scanner" type="button"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M8.4 5.5 9.7 3.8h4.6l1.3 1.7H19a2 2 0 0 1 2 2V18a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7.5a2 2 0 0 1 2-2h3.4Z"/><circle cx="12" cy="12.5" r="4"/></svg> OCR shopping list</button>
+        <div class="actions">
+          <button class="primary" type="submit">Plot locations</button>
+          <button class="secondary" id="clear-button" type="button">Clear</button>
+        </div>
+      </form>
+
+      <aside class="field-note" aria-label="How cache coordinates work">
+        <span class="field-note-icon" aria-hidden="true">!</span>
+        <p><strong>These are search areas, not exact positions.</strong> Once inside the highlighted square, search the surrounding terrain and buildings manually. Cache locations are randomized for each game session.</p>
+      </aside>
+
+      <section class="results" aria-labelledby="locations-title">
+        <div class="section-heading">
+          <h2 id="locations-title">Plotted squares</h2>
+          <span id="location-count">0</span>
+        </div>
+        <div id="legend" class="legend"><p class="empty-state">No locations plotted yet.</p></div>
+      </section>
+
+      <div class="help">
+        <span><b>Wheel / pinch</b> zoom</span>
+        <span><b>Drag</b> pan</span>
+        <span><b>Double-click</b> zoom in</span>
+      </div>
+
+      <footer class="legal-notice">
+        <p>Unofficial, fan-made tool. <i>Arma Reforger</i>, the Everon map imagery, and associated intellectual property belong to Bohemia Interactive a.s. This tool is not affiliated with or endorsed by Bohemia Interactive.</p>
+        <p>High-resolution map compiled and stitched from in-game screenshots by Steam Community creator Heisenburger. <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2816709014" target="_blank" rel="noopener noreferrer">View their original guide ↗</a></p>
+        <p>Local OCR is powered by <a href="https://github.com/naptha/tesseract.js" target="_blank" rel="noopener noreferrer">Tesseract.js</a> and the <a href="https://github.com/tesseract-ocr/tesseract" target="_blank" rel="noopener noreferrer">Tesseract OCR engine</a>, licensed under Apache 2.0. See the bundled <a href="THIRD_PARTY_NOTICES.txt" target="_blank">third-party notices</a> and <a href="APACHE-2.0.txt" target="_blank">license</a>.</p>
+      </footer>
+    </aside>
+
+    <section class="map-panel" aria-label="Interactive Everon map">
+      <div class="map-toolbar">
+        <div id="cursor-readout" class="coordinate-readout"><span class="status-dot"></span>Move over the map</div>
+        <div class="zoom-controls">
+          <button id="zoom-out" aria-label="Zoom out" title="Zoom out">−</button>
+          <button id="reset-view" aria-label="Reset map view" title="Reset view">⌂</button>
+          <button id="zoom-in" aria-label="Zoom in" title="Zoom in">+</button>
+        </div>
+      </div>
+      <div id="map-viewport" class="map-viewport">
+        <canvas id="map-canvas" aria-label="Everon map with plotted FIA grid squares"></canvas>
+        <div id="loading" class="loading">Loading Everon map…</div>
+      </div>
+    </section>
+  </main>
+
+  <dialog class="scanner-dialog" id="scanner-dialog" aria-labelledby="scanner-title">
+    <form method="dialog" class="scanner-card">
+      <div class="scanner-heading">
+        <div><div class="eyebrow">CAMERA OCR</div><h2 id="scanner-title">OCR shopping list</h2></div>
+        <button class="dialog-close" value="cancel" aria-label="Close scanner">×</button>
+      </div>
+      <p class="scanner-intro">Take a clear photo of the coordinate list or choose an existing image. You can review everything before it is added to the map.</p>
+      <label class="photo-picker" for="shopping-list-photo">
+        <span class="photo-picker-icon" aria-hidden="true">＋</span>
+        <strong>Take or choose a photo</strong>
+        <small>JPG, PNG, HEIC, or WebP</small>
+      </label>
+      <input class="visually-hidden" id="shopping-list-photo" type="file" accept="image/*" capture="environment">
+      <div class="photo-preview" id="photo-preview" hidden><img id="photo-preview-image" alt="Selected shopping list"></div>
+      <div class="scan-status" id="scan-status" role="status" aria-live="polite"></div>
+      <div class="scan-results" id="scan-results" hidden>
+        <h3>Coordinates found</h3>
+        <div id="scan-coordinate-list"></div>
+      </div>
+      <div class="scanner-actions">
+        <button class="secondary" value="cancel">Cancel</button>
+        <button class="primary" id="scan-photo" type="button" disabled>Read photo</button>
+        <button class="primary" id="use-scan" type="button" hidden>Use coordinates</button>
+      </div>
+    </form>
+  </dialog>
+  <script src="app.js"></script>
+</body>
+</html>

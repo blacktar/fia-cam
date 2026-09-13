@@ -76,16 +76,47 @@ async function getOcrWorker() {
 }
 
 function extractCoordinates(text) {
-  const tokens = text.match(/\d{3}/g) || [];
   const coordinates = [];
-  for (let index = 0; index + 1 < tokens.length && coordinates.length < 5; index += 2) {
-    const easting = Number(tokens[index]);
-    const northing = Number(tokens[index + 1]);
-    if (easting >= 0 && easting <= 135 && northing >= 0 && northing <= 129) {
-      coordinates.push({ easting, northing });
+
+  function addPair(target, eastingText, northingText) {
+    const easting = Number(eastingText);
+    const northing = Number(northingText);
+    if (Number.isInteger(easting) && Number.isInteger(northing) &&
+        easting >= 0 && easting <= 135 && northing >= 0 && northing <= 129) {
+      target.push({ easting, northing });
+      return true;
+    }
+    return false;
+  }
+
+  // Prefer one shopping-list row at a time. Removing OCR-inserted spaces lets
+  // values such as "0 65 0 31" recover as the intended "065 031".
+  for (const line of text.split(/\r?\n/)) {
+    if (coordinates.length >= 5) break;
+    const digits = line.replace(/\D/g, '');
+    if (digits.length === 6) addPair(coordinates, digits.slice(0, 3), digits.slice(3));
+    else if (digits.length >= 4 && digits.length <= 5) {
+      // If OCR drops leading zeroes, try every plausible split and retain the
+      // unique pair that falls inside Everon's coordinate range.
+      const candidates = [];
+      for (let split = 1; split < digits.length; split += 1) {
+        const easting = Number(digits.slice(0, split));
+        const northing = Number(digits.slice(split));
+        if (easting <= 135 && northing <= 129 && split <= 3 && digits.length - split <= 3) {
+          candidates.push({ easting, northing });
+        }
+      }
+      if (candidates.length === 1) coordinates.push(candidates[0]);
     }
   }
-  return coordinates;
+
+  // Fallback for OCR output that combines every row into one continuous line.
+  const tokens = text.match(/\d{3}/g) || [];
+  const continuousCoordinates = [];
+  for (let index = 0; index + 1 < tokens.length && continuousCoordinates.length < 5; index += 2) {
+    addPair(continuousCoordinates, tokens[index], tokens[index + 1]);
+  }
+  return (continuousCoordinates.length > coordinates.length ? continuousCoordinates : coordinates).slice(0, 5);
 }
 
 async function recognizeCoordinates(image) {
@@ -98,6 +129,7 @@ async function recognizeCoordinates(image) {
       preserve_interword_spaces: '1'
     });
     const result = await worker.recognize(image, { rotateAuto: true });
+    if (process.env.OCR_DEBUG === '1') console.log('OCR text:', JSON.stringify(result.data.text));
     attempts.push(extractCoordinates(result.data.text));
     if (attempts.at(-1).length === 5) break;
   }

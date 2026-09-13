@@ -443,13 +443,13 @@
 
   async function preparePhoto(file) {
     const image = await loadImageFile(file);
-    const maximumSide = 1800;
+    const maximumSide = 2400;
     const ratio = Math.min(1, maximumSide / Math.max(image.naturalWidth, image.naturalHeight));
     const output = document.createElement('canvas');
     output.width = Math.max(1, Math.round(image.naturalWidth * ratio));
     output.height = Math.max(1, Math.round(image.naturalHeight * ratio));
     output.getContext('2d').drawImage(image, 0, 0, output.width, output.height);
-    return output.toDataURL('image/jpeg', .88);
+    return output.toDataURL('image/jpeg', .92);
   }
 
   document.querySelector('#open-scanner').addEventListener('click', () => {

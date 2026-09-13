@@ -69,6 +69,7 @@ h2 { margin: 0; font-size: .82rem; letter-spacing: .09em; text-transform: upperc
 .legal-notice { margin-top: 13px; padding-top: 12px; border-top: 1px solid #29352e; color: #69766e; font-size: .75rem; line-height: 1.38; }
 .legal-notice p { margin: 0; }
 .legal-notice p + p { margin-top: 6px; }
+.legal-notice .app-version { color: var(--gold); font-weight: 800; letter-spacing: .06em; }
 .legal-notice a { color: #aebbb3; text-decoration-color: #5f6c64; text-underline-offset: 2px; }
 .legal-notice a:hover, .legal-notice a:focus-visible { color: var(--gold); }
 .map-panel { min-width: 0; position: relative; display: flex; flex-direction: column; background: #29312e; }

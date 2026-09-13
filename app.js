@@ -32,10 +32,12 @@
   const count = document.querySelector('#location-count');
   const shareButton = document.querySelector('#share-locations');
   const shareStatus = document.querySelector('#share-status');
+  const mapTabs = document.querySelector('.map-tabs');
+  const mapTabMessage = document.querySelector('#map-tab-message');
   const readout = document.querySelector('#cursor-readout');
   const loading = document.querySelector('#loading');
   const tileCache = new Map();
-  const state = { scale: 1, minScale: 1, maxScale: 1, x: 0, y: 0, viewportWidth: 0, viewportHeight: 0, dragging: false, lastX: 0, lastY: 0, points: [], pointers: new Map(), pinchDistance: 0, mapReady: false };
+  const state = { scale: 1, minScale: 1, maxScale: 1, x: 0, y: 0, viewportWidth: 0, viewportHeight: 0, dragging: false, lastX: 0, lastY: 0, pointerStartX: 0, pointerStartY: 0, pointerMoved: false, points: [], pointers: new Map(), pinchDistance: 0, mapReady: false };
 
   for (let i = 0; i < 5; i += 1) {
     rowsHost.insertAdjacentHTML('beforeend', `
@@ -432,6 +434,24 @@
     draw();
   }
 
+  function focusMarkerAt(clientX, clientY) {
+    const rect = viewport.getBoundingClientRect();
+    let closest = null;
+    let closestDistance = Infinity;
+    for (const point of state.points) {
+      const markerX = rect.left + state.x + (MAP.left + point.e * MAP.cellX) * state.scale;
+      const markerY = rect.top + state.y + (MAP.bottom - point.n * MAP.cellY) * state.scale;
+      const distance = Math.hypot(clientX - markerX, clientY - markerY);
+      const hitRadius = Math.max(28, MAP.cellX * .4 * state.scale);
+      if (distance <= hitRadius && distance < closestDistance) {
+        closest = point;
+        closestDistance = distance;
+      }
+    }
+    if (closest) focusPoint(closest);
+    return Boolean(closest);
+  }
+
   function fitPoints(points) {
     if (!points.length) return;
     if (points.length === 1) {
@@ -605,11 +625,7 @@
   shareButton.addEventListener('click', async () => {
     if (state.points.length !== 5) return;
     const url = shareUrl();
-    const data = {
-      title: 'FIA Cache Mapper locations',
-      text: 'FIA cache locations for this game session',
-      url
-    };
+    const data = { url };
     try {
       if (navigator.share && (!navigator.canShare || navigator.canShare(data))) {
         await navigator.share(data);
@@ -646,6 +662,17 @@
     draw();
   });
 
+  mapTabs.addEventListener('click', (event) => {
+    const tab = event.target.closest('.map-tab');
+    if (!tab) return;
+    if (tab.dataset.map === 'kolguyev') {
+      mapTabMessage.hidden = false;
+      document.querySelector('#everon-tab').focus();
+      return;
+    }
+    mapTabMessage.hidden = true;
+  });
+
   legend.addEventListener('click', (event) => {
     const button = event.target.closest('.legend-item');
     if (!button) return;
@@ -658,6 +685,13 @@
   viewport.addEventListener('pointerdown', (event) => {
     viewport.setPointerCapture(event.pointerId);
     state.pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    if (state.pointers.size === 1) {
+      state.pointerStartX = event.clientX;
+      state.pointerStartY = event.clientY;
+      state.pointerMoved = false;
+    } else {
+      state.pointerMoved = true;
+    }
     state.dragging = true;
     state.lastX = event.clientX;
     state.lastY = event.clientY;
@@ -666,6 +700,7 @@
   viewport.addEventListener('pointermove', (event) => {
     showCursor(event.clientX, event.clientY);
     if (!state.pointers.has(event.pointerId)) return;
+    if (Math.hypot(event.clientX - state.pointerStartX, event.clientY - state.pointerStartY) > 8) state.pointerMoved = true;
     state.pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
     if (state.pointers.size === 2) {
       const [a, b] = [...state.pointers.values()];
@@ -682,10 +717,12 @@
     }
   });
   function endPointer(event) {
+    const isMarkerTap = !state.pointerMoved && state.pointers.size === 1;
     state.pointers.delete(event.pointerId);
     state.pinchDistance = 0;
     if (!state.pointers.size) { state.dragging = false; viewport.classList.remove('dragging'); }
     else { const p = [...state.pointers.values()][0]; state.lastX = p.x; state.lastY = p.y; }
+    if (isMarkerTap) focusMarkerAt(event.clientX, event.clientY);
   }
   viewport.addEventListener('pointerup', endPointer);
   viewport.addEventListener('pointercancel', endPointer);

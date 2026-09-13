@@ -93,6 +93,8 @@ h2 { margin: 0; font-size: .82rem; letter-spacing: .09em; text-transform: upperc
 .scanner-heading h2 { margin-top: 6px; color: #f2f5f2; font-family: Georgia, "Times New Roman", serif; font-size: 1.7rem; letter-spacing: -.02em; text-transform: none; }
 .dialog-close { min-width: 38px; min-height: 38px; border-color: #39473f; background: #1a231e; font-size: 1.35rem; line-height: 1; }
 .scanner-intro { margin: 13px 0 18px; color: var(--muted); font-size: .9rem; line-height: 1.5; }
+.framing-note { display: grid; gap: 4px; margin: -5px 0 16px; padding: 11px 12px; border-left: 3px solid var(--gold); background: rgba(239,199,94,.07); color: #aeb9b2; font-size: .82rem; line-height: 1.45; }
+.framing-note strong { color: #f1d47f; font-size: .76rem; letter-spacing: .06em; text-transform: uppercase; }
 .photo-picker { min-height: 118px; display: grid; place-items: center; align-content: center; gap: 4px; border: 1px dashed #56665d; border-radius: 8px; background: #0d1310; cursor: pointer; text-align: center; }
 .photo-picker:hover, .photo-picker:focus-within { border-color: var(--gold); background: rgba(239,199,94,.04); }
 .photo-picker-icon { color: var(--gold); font-size: 1.5rem; line-height: 1; }

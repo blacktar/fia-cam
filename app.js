@@ -2,6 +2,18 @@
   'use strict';
 
   const APP_VERSION = document.querySelector('meta[name="app-version"]')?.content || '';
+  const mobileLayout = window.matchMedia('(max-width: 760px)');
+  const appShell = document.querySelector('.app-shell');
+  const panel = document.querySelector('.panel');
+  const legalNotice = document.querySelector('.legal-notice');
+
+  function arrangeMobileSections() {
+    if (mobileLayout.matches) appShell.append(legalNotice);
+    else panel.append(legalNotice);
+  }
+
+  arrangeMobileSections();
+  mobileLayout.addEventListener('change', arrangeMobileSections);
 
   const MAPS = {
     everon: {

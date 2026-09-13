@@ -18,7 +18,9 @@
   const MAPS = {
     everon: {
       id: 'everon', name: 'Everon', width: 16100, height: 16100,
-      left: 432, right: 15664, top: 1103, bottom: 15663,
+      // Least-squares fit of all printed grid-line centres in the 16,100 px source.
+      // The bitmap interval is 111.828 px rather than the previously assumed 112 px.
+      left: 443.508, right: 15652.083, top: 1118.829, bottom: 15656.484,
       minE: 0, maxE: 135, minN: 0, maxN: 129,
       levelSizes: [1007, 2013, 4025, 8050, 16100],
       tileRoot: 'assets/map-tiles'

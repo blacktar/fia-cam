@@ -159,10 +159,94 @@ function targetRectanglesFromTsv(tsv) {
     .slice(0, 2);
 }
 
+function headingRectangleFromTsv(tsv) {
+  if (typeof tsv !== 'string' || !tsv.trim()) return null;
+  const rows = tsv.trim().split(/\r?\n/).map((line) => line.split('\t'));
+  const page = rows.find((row) => row[0] === '1');
+  const imageWidth = Number(page?.[8]);
+  const imageHeight = Number(page?.[9]);
+  if (!imageWidth || !imageHeight) return null;
+
+  const words = rows
+    .filter((row) => row[0] === '5' && Number(row[10]) >= 15 && row[11])
+    .map((row) => ({
+      line: row.slice(1, 5).join(':'),
+      text: row[11].toLowerCase().replace(/[^a-z]/g, ''),
+      left: Number(row[6]), top: Number(row[7]), width: Number(row[8]), height: Number(row[9])
+    }));
+
+  function resembles(actual, expected) {
+    if (actual === expected || actual.includes(expected) || expected.includes(actual) && actual.length >= expected.length - 2) return true;
+    if (Math.abs(actual.length - expected.length) > 2) return false;
+    const costs = Array.from({ length: expected.length + 1 }, (_, index) => index);
+    for (let i = 1; i <= actual.length; i += 1) {
+      let previous = costs[0];
+      costs[0] = i;
+      for (let j = 1; j <= expected.length; j += 1) {
+        const saved = costs[j];
+        costs[j] = Math.min(costs[j] + 1, costs[j - 1] + 1, previous + (actual[i - 1] === expected[j - 1] ? 0 : 1));
+        previous = saved;
+      }
+    }
+    return costs[expected.length] <= 2;
+  }
+
+  for (let index = 0; index < words.length; index += 1) {
+    const first = words[index];
+    const combinedHeading = resembles(first.text, 'shoppinglist');
+    if (!combinedHeading && !resembles(first.text, 'shopping')) continue;
+    const second = combinedHeading ? first : words.slice(index + 1, index + 4).find((word) => word.line === first.line && resembles(word.text, 'list'));
+    if (!second) continue;
+    const headingLeft = Math.min(first.left, second.left);
+    const headingRight = Math.max(first.left + first.width, second.left + second.width);
+    const headingBottom = Math.max(first.top + first.height, second.top + second.height);
+    const headingWidth = headingRight - headingLeft;
+    const headingHeight = Math.max(first.height, second.height);
+    const regionWidth = Math.min(imageWidth, Math.max(headingWidth * 2.8, imageWidth * .24));
+    const left = Math.max(0, Math.round((headingLeft + headingRight) / 2 - regionWidth / 2));
+    const top = Math.max(0, Math.round(headingBottom - headingHeight * .15));
+    return {
+      left,
+      top,
+      width: Math.min(Math.round(regionWidth), imageWidth - left),
+      height: Math.min(Math.round(Math.max(headingHeight * 15, imageHeight * .28)), imageHeight - top)
+    };
+  }
+  return null;
+}
+
 async function recognizeCoordinates(image) {
   const worker = await getOcrWorker();
   const attempts = [];
   const targetRectangles = [];
+
+  // Find the stable in-game heading first, then read the five rows beneath it.
+  // This removes unrelated HUD numbers while retaining whole-image fallbacks.
+  await worker.setParameters({
+    tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 ',
+    tessedit_pageseg_mode: '11',
+    preserve_interword_spaces: '1',
+    user_defined_dpi: '300'
+  });
+  const headingPass = await worker.recognize(image, { rotateAuto: false }, { text: true, tsv: true });
+  attempts.push(extractCoordinates(headingPass.data.text));
+  const headingRectangle = headingRectangleFromTsv(headingPass.data.tsv);
+  if (process.env.OCR_DEBUG === '1') console.log('Heading OCR:', headingRectangle, JSON.stringify(headingPass.data.text));
+  if (attempts.at(-1).length === 5) return attempts.at(-1);
+
+  if (headingRectangle && !attempts.some((attempt) => attempt.length === 5)) {
+    for (const pageMode of ['6', '11']) {
+      await worker.setParameters({
+        tessedit_char_whitelist: '0123456789 ',
+        tessedit_pageseg_mode: pageMode
+      });
+      const result = await worker.recognize(image, { rectangle: headingRectangle });
+      if (process.env.OCR_DEBUG === '1') console.log('Heading-targeted OCR:', headingRectangle, JSON.stringify(result.data.text));
+      attempts.push(extractCoordinates(result.data.text));
+      if (attempts.at(-1).length === 5) return attempts.at(-1);
+    }
+  }
+
   for (const pageMode of ['6', '11']) {
     await worker.setParameters({
       tessedit_char_whitelist: '0123456789 ',

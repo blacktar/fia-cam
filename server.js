@@ -4,6 +4,7 @@ const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
 const { createWorker } = require('tesseract.js');
+const { version: APP_VERSION } = require('./package.json');
 
 const ROOT = __dirname;
 const PORT = Number(process.env.PORT || 8080);
@@ -160,7 +161,7 @@ async function scanShoppingList(request, response) {
     body.image = '';
     imageBuffer = Buffer.from(base64, 'base64');
     const coordinates = await queueRecognition(imageBuffer);
-    return sendJson(response, 200, { coordinates });
+    return sendJson(response, 200, { coordinates, version: APP_VERSION });
   } catch (error) {
     console.error('Local OCR failure:', error.message);
     return sendJson(response, 502, { error: 'The OCR service could not read the photo. Try again.' });
@@ -174,6 +175,7 @@ const server = http.createServer(async (request, response) => {
   secureHeaders(response);
   const url = new URL(request.url, 'http://localhost');
   if (request.method === 'POST' && url.pathname === '/api/scan') return scanShoppingList(request, response);
+  if (request.method === 'GET' && url.pathname === '/api/status') return sendJson(response, 200, { version: APP_VERSION });
   if (!['GET', 'HEAD'].includes(request.method)) return sendJson(response, 405, { error: 'Method not allowed.' });
 
   const requested = url.pathname === '/' ? 'index.html' : decodeURIComponent(url.pathname.slice(1));

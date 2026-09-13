@@ -1,6 +1,8 @@
 (() => {
   'use strict';
 
+  const APP_VERSION = document.querySelector('meta[name="app-version"]')?.content || '';
+
   const MAP = {
     width: 16100,
     height: 16100,
@@ -548,10 +550,11 @@
     photoPreviewImage.src = photoObjectUrl;
     photoPreview.hidden = false;
     scanButton.disabled = false;
-    setScanStatus('Photo ready to scan.');
+    setScanStatus('Photo ready. Starting OCR…');
+    scanSelectedPhoto();
   });
 
-  scanButton.addEventListener('click', async () => {
+  async function scanSelectedPhoto() {
     if (!selectedPhoto) return;
     scanButton.disabled = true;
     resetScanResults();
@@ -566,6 +569,9 @@
       });
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.error || 'The photo could not be scanned.');
+      if (data.version !== APP_VERSION) {
+        throw new Error(`The page is ${APP_VERSION || 'newer'}, but the OCR server is ${data.version || 'an older release'}. Restart the app in GoDaddy, then try again.`);
+      }
       scannedCoordinates = (data.coordinates || []).filter((item) =>
         Number.isInteger(item.easting) && Number.isInteger(item.northing) &&
         item.easting >= MAP.minE && item.easting <= MAP.maxE &&
@@ -590,7 +596,9 @@
     } finally {
       scanButton.disabled = false;
     }
-  });
+  }
+
+  scanButton.addEventListener('click', scanSelectedPhoto);
 
   useScanButton.addEventListener('click', applyScannedCoordinates);
 

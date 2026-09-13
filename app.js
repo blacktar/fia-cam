@@ -431,6 +431,18 @@
     scanCoordinateList.replaceChildren();
   }
 
+  function applyScannedCoordinates() {
+    rowEls.forEach((row, index) => {
+      const [easting, northing] = row.querySelectorAll('input');
+      const coordinate = scannedCoordinates[index];
+      easting.value = coordinate ? String(coordinate.easting).padStart(3, '0') : '';
+      northing.value = coordinate ? String(coordinate.northing).padStart(3, '0') : '';
+    });
+    scannerDialog.close();
+    document.querySelector('#coordinate-form').requestSubmit();
+    requestAnimationFrame(() => viewport.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  }
+
   function loadImageFile(file) {
     return new Promise((resolve, reject) => {
       const url = URL.createObjectURL(file);
@@ -507,6 +519,10 @@
         item.northing >= MAP.minN && item.northing <= MAP.maxN
       ).slice(0, 5);
       if (!scannedCoordinates.length) throw new Error('No valid FIA coordinates were found. Try a clearer, closer photo.');
+      if (scannedCoordinates.length === 5) {
+        applyScannedCoordinates();
+        return;
+      }
       scanCoordinateList.replaceChildren(...scannedCoordinates.map((item) => {
         const chip = document.createElement('span');
         chip.className = 'scan-coordinate';
@@ -523,16 +539,7 @@
     }
   });
 
-  useScanButton.addEventListener('click', () => {
-    rowEls.forEach((row, index) => {
-      const [easting, northing] = row.querySelectorAll('input');
-      const coordinate = scannedCoordinates[index];
-      easting.value = coordinate ? String(coordinate.easting).padStart(3, '0') : '';
-      northing.value = coordinate ? String(coordinate.northing).padStart(3, '0') : '';
-    });
-    scannerDialog.close();
-    document.querySelector('#coordinate-form').requestSubmit();
-  });
+  useScanButton.addEventListener('click', applyScannedCoordinates);
 
   document.querySelector('#coordinate-form').addEventListener('submit', (event) => {
     event.preventDefault();

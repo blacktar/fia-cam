@@ -30,9 +30,16 @@ The server listens on the port supplied through `PORT`, defaulting to `8080` loc
 
 OCR requests are limited to three scans per IP address in each rolling minute. Set `OCR_RATE_LIMIT` to a positive whole number to override that default.
 
-## cPanel deployment
+## Server deployment
 
-Create a production Node.js application using Node 20 or 22, select `server.js` as its startup file, connect this repository, install its npm dependencies, and restart the application. Do not set `PORT` manually when the hosting platform supplies it.
+Deploy the repository with any hosting platform or Linux server that can run Node.js 18 or newer:
+
+1. Clone this repository or upload its complete contents.
+2. Install production dependencies with `npm ci --omit=dev`.
+3. Start the application with `npm start` (the startup file is `server.js`).
+4. Route your HTTPS domain or reverse proxy to the Node.js service.
+
+The application reads the platform-provided `PORT` environment variable and otherwise listens on port `8080`. Do not override `PORT` when your hosting platform assigns it automatically. Keep the Node.js process running with your platform's process manager or a service manager such as systemd.
 
 The first OCR scan after a process restart can take longer while Tesseract initializes. The bundled English recognition data is stored in `.ocr-cache/eng.traineddata` so the server does not need to download it at first use.
 

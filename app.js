@@ -31,7 +31,7 @@
   const readout = document.querySelector('#cursor-readout');
   const loading = document.querySelector('#loading');
   const tileCache = new Map();
-  const state = { scale: 1, minScale: 1, maxScale: 12, x: 0, y: 0, viewportWidth: 0, viewportHeight: 0, dragging: false, lastX: 0, lastY: 0, points: [], pointers: new Map(), pinchDistance: 0, mapReady: false };
+  const state = { scale: 1, minScale: 1, maxScale: 1, x: 0, y: 0, viewportWidth: 0, viewportHeight: 0, dragging: false, lastX: 0, lastY: 0, points: [], pointers: new Map(), pinchDistance: 0, mapReady: false };
 
   for (let i = 0; i < 5; i += 1) {
     rowsHost.insertAdjacentHTML('beforeend', `
@@ -58,6 +58,16 @@
   let scannedCoordinates = [];
   let resizeFrame = 0;
 
+  function maximumScaleFor(rect) {
+    // At maximum zoom, retain about four complete grid squares along the
+    // constrained viewport dimension. The other dimension shows more when
+    // the viewport is not square.
+    return Math.max(
+      state.minScale,
+      Math.min(rect.width / (MAP.cellX * 4), rect.height / (MAP.cellY * 4))
+    );
+  }
+
   function resizeCanvas() {
     const rect = viewport.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
@@ -72,7 +82,8 @@
     state.viewportWidth = rect.width;
     state.viewportHeight = rect.height;
     state.minScale = Math.min(rect.width / MAP.width, rect.height / MAP.height);
-    state.scale = Math.min(state.minScale * state.maxScale, Math.max(state.minScale, state.minScale * relativeZoom));
+    state.maxScale = maximumScaleFor(rect);
+    state.scale = Math.min(state.maxScale, Math.max(state.minScale, state.minScale * relativeZoom));
     state.x = rect.width / 2 - centerMapX * state.scale;
     state.y = rect.height / 2 - centerMapY * state.scale;
     clampView();
@@ -87,6 +98,7 @@
   function fitMap(redraw = true) {
     const rect = viewport.getBoundingClientRect();
     state.minScale = Math.min(rect.width / MAP.width, rect.height / MAP.height);
+    state.maxScale = maximumScaleFor(rect);
     state.scale = state.minScale;
     state.x = (rect.width - MAP.width * state.scale) / 2;
     state.y = (rect.height - MAP.height * state.scale) / 2;
@@ -358,7 +370,7 @@
     const px = clientX - rect.left;
     const py = clientY - rect.top;
     const old = state.scale;
-    const next = Math.min(state.maxScale * state.minScale, Math.max(state.minScale, old * factor));
+    const next = Math.min(state.maxScale, Math.max(state.minScale, old * factor));
     state.x = px - (px - state.x) * (next / old);
     state.y = py - (py - state.y) * (next / old);
     state.scale = next;
@@ -370,7 +382,7 @@
     const rect = viewport.getBoundingClientRect();
     const cx = MAP.left + (point.e + .5) * MAP.cellX;
     const cy = MAP.bottom - (point.n + .5) * MAP.cellY;
-    state.scale = Math.min(state.maxScale * state.minScale, Math.max(state.minScale * 5, .7));
+    state.scale = Math.min(state.maxScale, Math.max(state.minScale * 5, .7));
     state.x = rect.width / 2 - cx * state.scale;
     state.y = rect.height / 2 - cy * state.scale;
     clampView();
@@ -399,7 +411,7 @@
       availableHeight / (contentHeight + mapPadding * 2)
     );
 
-    state.scale = Math.min(state.maxScale * state.minScale, Math.max(state.minScale, nextScale));
+    state.scale = Math.min(state.maxScale, Math.max(state.minScale, nextScale));
     state.x = rect.width / 2 - ((left + right) / 2) * state.scale;
     state.y = rect.height / 2 - ((top + bottom) / 2) * state.scale;
     clampView();

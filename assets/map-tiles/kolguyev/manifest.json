@@ -1,0 +1,28 @@
+{
+  "tileSize": 1024,
+  "fullSize": 9485,
+  "levels": [
+    { "level": 0, "size": 593 },
+    { "level": 1, "size": 1186 },
+    { "level": 2, "size": 2372 },
+    { "level": 3, "size": 4743 },
+    { "level": 4, "size": 9485 }
+  ],
+  "grid": {
+    "left": 33.875,
+    "right": 9518.875,
+    "top": -33.875,
+    "bottom": 9451.125,
+    "minE": 0,
+    "maxE": 139,
+    "minN": 0,
+    "maxN": 139
+  },
+  "source": {
+    "creator": "Bewilderbeest / Nick Ludlam",
+    "website": "https://reforger.recoil.org/kolguyev/",
+    "project": "https://github.com/nickludlam/EnfusionMapMaker",
+    "license": "Arma Public License Share Alike (APL-SA)",
+    "modifications": "Re-tiled, downsampled, compressed, and empty ocean tiles filled for FIA CaM."
+  }
+}

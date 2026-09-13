@@ -3,26 +3,42 @@
 
   const APP_VERSION = document.querySelector('meta[name="app-version"]')?.content || '';
 
-  const MAP = {
-    width: 16100,
-    height: 16100,
-    // Exact printed coordinate-line bounds in the supplied 16100 px map.
-    // The numbered grid is inset from the image border and uses 112 px cells.
-    left: 432,
-    right: 15664,
-    top: 1103,
-    bottom: 15663,
-    minE: 0,
-    maxE: 135,
-    minN: 0,
-    maxN: 129
+  const MAPS = {
+    everon: {
+      id: 'everon', name: 'Everon', width: 16100, height: 16100,
+      left: 432, right: 15664, top: 1103, bottom: 15663,
+      minE: 0, maxE: 135, minN: 0, maxN: 129,
+      levelSizes: [1007, 2013, 4025, 8050, 16100],
+      tileRoot: 'assets/map-tiles'
+    },
+    arland: {
+      id: 'arland', name: 'Arland', width: 8192, height: 8192,
+      // Calibrated against the numbered grid in supplied in-game screenshots.
+      left: 669, right: 8191, top: 0, bottom: 7522,
+      minE: 0, maxE: 44, minN: 0, maxN: 44,
+      levelSizes: [512, 1024, 2048, 4096, 8192],
+      tileRoot: 'assets/map-tiles/arland'
+    },
+    kolguyev: {
+      id: 'kolguyev', name: 'Kolguyev', width: 9485, height: 9485,
+      // Recoil's captures are centred on 100 m samples, placing the 000 line
+      // 50 m inside the image. Screenshots confirm this lower-left origin.
+      left: 33.875, right: 9518.875, top: -33.875, bottom: 9451.125,
+      minE: 0, maxE: 139, minN: 0, maxN: 139,
+      levelSizes: [593, 1186, 2372, 4743, 9485],
+      tileRoot: 'assets/map-tiles/kolguyev'
+    }
   };
-  MAP.cellX = (MAP.right - MAP.left) / 136;
-  MAP.cellY = (MAP.bottom - MAP.top) / 130;
+  Object.values(MAPS).forEach((map) => {
+    map.cellX = (map.right - map.left) / (map.maxE - map.minE + 1);
+    map.cellY = (map.bottom - map.top) / (map.maxN - map.minN + 1);
+  });
+  const requestedMap = new URL(location.href).searchParams.get('map');
+  let MAP = MAPS[requestedMap] || MAPS.everon;
 
   const COLORS = ['#e95f4f', '#f0a43c', '#2c9f83', '#467dcc', '#a963d6'];
   const TILE_SIZE = 1024;
-  const LEVELS = [1007, 2013, 4025, 8050, 16100].map((size, level) => ({ level, size, ratio: size / MAP.width }));
+  let LEVELS = MAP.levelSizes.map((size, level) => ({ level, size, ratio: size / MAP.width }));
   const MAX_CACHED_TILES = 48;
   const canvas = document.querySelector('#map-canvas');
   const ctx = canvas.getContext('2d');
@@ -33,7 +49,8 @@
   const shareButton = document.querySelector('#share-locations');
   const shareStatus = document.querySelector('#share-status');
   const mapTabs = document.querySelector('.map-tabs');
-  const mapTabMessage = document.querySelector('#map-tab-message');
+  const mapEyebrow = document.querySelector('.brand .eyebrow');
+  const mapPanel = document.querySelector('.map-panel');
   const readout = document.querySelector('#cursor-readout');
   const loading = document.querySelector('#loading');
   const tileCache = new Map();
@@ -135,7 +152,7 @@
       // The associated search square extends east (right) and north (up).
       const cx = x;
       const cy = y + MAP.cellY;
-      // Tint the entire 1 km square and keep its border legible at every zoom level.
+      // Tint the entire 100 m square and keep its border legible at every zoom level.
       ctx.fillStyle = `${point.color}70`;
       ctx.fillRect(x, y, MAP.cellX, MAP.cellY);
       ctx.strokeStyle = 'rgba(255,255,255,.9)';
@@ -185,9 +202,9 @@
     ctx.beginPath();
     ctx.rect(visibleLeft, visibleTop, visibleRight - visibleLeft, visibleBottom - visibleTop);
     ctx.clip();
-    ctx.setLineDash([4, 6]);
+    ctx.setLineDash([]);
     ctx.lineWidth = 1;
-    ctx.strokeStyle = 'rgba(239,199,94,.26)';
+    ctx.strokeStyle = 'rgba(239,199,94,.38)';
 
     const firstE = Math.max(MAP.minE, Math.ceil(((0 - state.x) / state.scale - MAP.left) / MAP.cellX));
     const lastE = Math.min(MAP.maxE + 1, Math.floor(((rect.width - state.x) / state.scale - MAP.left) / MAP.cellX));
@@ -235,7 +252,9 @@
   }
 
   function getTile(level, column, row) {
-    const key = `${level.level}/${column}-${row}`;
+    const mapId = MAP.id;
+    const tileRoot = MAP.tileRoot;
+    const key = `${mapId}/${level.level}/${column}-${row}`;
     if (tileCache.has(key)) {
       const cached = tileCache.get(key);
       cached.lastUsed = performance.now();
@@ -246,23 +265,26 @@
     tileCache.set(key, record);
     tile.addEventListener('load', () => {
       record.loaded = true;
-      if (level.level === 0) {
+      if (mapId === MAP.id && level.level === 0) {
         state.mapReady = true;
         loading.hidden = true;
         resizeCanvas();
         restore();
       }
       pruneTileCache();
-      draw();
+      if (mapId === MAP.id) draw();
     });
-    tile.src = `assets/map-tiles/${level.level}/${column}-${row}.jpg`;
+    tile.addEventListener('error', () => {
+      if (mapId === MAP.id && level.level === 0) loading.textContent = `${MAP.name} map tiles could not be loaded.`;
+    });
+    tile.src = `${tileRoot}/${level.level}/${column}-${row}.jpg`;
     return record;
   }
 
   function pruneTileCache() {
     if (tileCache.size <= MAX_CACHED_TILES) return;
     const removable = [...tileCache.entries()]
-      .filter(([key, record]) => key !== '0/0-0' && record.loaded)
+      .filter(([key, record]) => !key.endsWith('/0/0-0') && record.loaded)
       .sort((a, b) => a[1].lastUsed - b[1].lastUsed);
     while (tileCache.size > MAX_CACHED_TILES && removable.length) {
       const [key, record] = removable.shift();
@@ -327,7 +349,9 @@
       let message = '';
       if (!eRaw || !nRaw) message = 'Enter both values.';
       else if (!/^\d{1,3}$/.test(eRaw) || !/^\d{1,3}$/.test(nRaw)) message = 'Use 1–3 digits in each field.';
-      else if (e < MAP.minE || e > MAP.maxE || n < MAP.minN || n > MAP.maxN) message = `Outside this map (E 000–135, N 000–129).`;
+      else if (e < MAP.minE || e > MAP.maxE || n < MAP.minN || n > MAP.maxN) {
+        message = `Outside ${MAP.name} (E ${String(MAP.minE).padStart(3, '0')}–${String(MAP.maxE).padStart(3, '0')}, N ${String(MAP.minN).padStart(3, '0')}–${String(MAP.maxN).padStart(3, '0')}).`;
+      }
       if (message) {
         row.classList.add('invalid');
         row.insertAdjacentHTML('beforeend', `<p class="row-error" role="alert">${message}</p>`);
@@ -358,6 +382,7 @@
     const url = new URL(location.href);
     url.search = '';
     url.hash = '';
+    url.searchParams.set('map', MAP.id);
     url.searchParams.set('locations', [...state.points]
       .sort((a, b) => a.index - b.index)
       .map((point) => `${String(point.e).padStart(3, '0')}${String(point.n).padStart(3, '0')}`)
@@ -380,7 +405,10 @@
   }
 
   function sharedCoordinates() {
-    const encoded = new URL(location.href).searchParams.get('locations');
+    const url = new URL(location.href);
+    const sharedMap = url.searchParams.get('map') || 'everon';
+    if (sharedMap !== MAP.id) return null;
+    const encoded = url.searchParams.get('locations');
     if (!encoded) return null;
     const entries = encoded.split(',');
     if (entries.length !== 5 || entries.some((entry) => !/^\d{6}$/.test(entry))) return null;
@@ -390,14 +418,21 @@
   }
 
   function save() {
-    localStorage.setItem('everon-fia-coordinates', JSON.stringify(rowEls.map((row) => [...row.querySelectorAll('input')].map((input) => input.value))));
+    localStorage.setItem(`${MAP.id}-fia-coordinates`, JSON.stringify(rowEls.map((row) => [...row.querySelectorAll('input')].map((input) => input.value))));
   }
 
   function restore() {
     try {
+      inputs.forEach((input) => { input.value = ''; });
+      rowEls.forEach((row) => { row.classList.remove('invalid'); row.querySelector('.row-error')?.remove(); });
       const shared = sharedCoordinates();
-      const saved = shared || JSON.parse(localStorage.getItem('everon-fia-coordinates'));
-      if (!Array.isArray(saved)) return;
+      const saved = shared || JSON.parse(localStorage.getItem(`${MAP.id}-fia-coordinates`));
+      if (!Array.isArray(saved)) {
+        state.points = [];
+        updateLegend();
+        fitMap();
+        return;
+      }
       saved.slice(0, 5).forEach((pair, i) => {
         const fields = rowEls[i].querySelectorAll('input');
         fields[0].value = pair?.[0] || '';
@@ -408,6 +443,39 @@
       if (shared) save();
       if (state.points.length) fitPoints(state.points);
     } catch (_) { /* Ignore malformed browser storage. */ }
+  }
+
+  function activateMap(mapId, persistCurrent = true) {
+    const nextMap = MAPS[mapId];
+    if (!nextMap || nextMap.id === MAP.id && state.mapReady) return;
+    if (persistCurrent) save();
+    MAP = nextMap;
+    LEVELS = MAP.levelSizes.map((size, level) => ({ level, size, ratio: size / MAP.width }));
+    state.mapReady = false;
+    state.points = [];
+    state.viewportWidth = 0;
+    state.viewportHeight = 0;
+    state.pointers.clear();
+    document.querySelectorAll('.map-tab').forEach((tab) => {
+      const active = tab.dataset.map === MAP.id;
+      tab.classList.toggle('active', active);
+      tab.setAttribute('aria-selected', String(active));
+    });
+    mapEyebrow.textContent = `FIELD TOOL · ${MAP.name.toUpperCase()}`;
+    mapPanel.setAttribute('aria-label', `Interactive ${MAP.name} map`);
+    canvas.setAttribute('aria-label', `${MAP.name} map with plotted FIA grid squares`);
+    loading.textContent = `Loading ${MAP.name} map…`;
+    loading.hidden = false;
+    readout.innerHTML = '<span class="status-dot"></span>Move over the map';
+    updateLegend();
+    draw();
+    const baseTile = getTile(LEVELS[0], 0, 0);
+    if (baseTile.loaded) {
+      state.mapReady = true;
+      loading.hidden = true;
+      resizeCanvas();
+      restore();
+    }
   }
 
   function zoomAt(clientX, clientY, factor) {
@@ -657,7 +725,7 @@
     inputs.forEach((input) => { input.value = ''; });
     rowEls.forEach((row) => { row.classList.remove('invalid'); row.querySelector('.row-error')?.remove(); });
     state.points = [];
-    localStorage.removeItem('everon-fia-coordinates');
+    localStorage.removeItem(`${MAP.id}-fia-coordinates`);
     updateLegend();
     draw();
   });
@@ -665,12 +733,7 @@
   mapTabs.addEventListener('click', (event) => {
     const tab = event.target.closest('.map-tab');
     if (!tab) return;
-    if (tab.dataset.map !== 'everon') {
-      mapTabMessage.hidden = false;
-      document.querySelector('#everon-tab').focus();
-      return;
-    }
-    mapTabMessage.hidden = true;
+    activateMap(tab.dataset.map);
   });
 
   legend.addEventListener('click', (event) => {
@@ -736,5 +799,5 @@
   window.addEventListener('resize', scheduleCanvasResize);
   new ResizeObserver(scheduleCanvasResize).observe(viewport);
 
-  getTile(LEVELS[0], 0, 0).image.addEventListener('error', () => { loading.textContent = 'Map tiles could not be loaded.'; });
+  activateMap(MAP.id, false);
 })();

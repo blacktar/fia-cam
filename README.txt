@@ -15,3 +15,9 @@ The browser sends the selected shopping-list photo only to this server's /api/sc
 
 COORDINATE FORMAT
 Enter Easting 065 and Northing 031. One to five complete rows may be used.
+
+MAPS
+Everon, Arland and Kolguyev are supported. Each map keeps its own coordinate list and markers. Shared links open the selected map automatically.
+
+LICENSES
+FIA CaM original material: CC BY-NC-SA 4.0. Third-party material remains under its respective license. See LICENSE, THIRD_PARTY_NOTICES.txt, APACHE-2.0.txt, APL-SA.txt, and STARDOS-STENCIL-OFL.txt.

@@ -43,8 +43,8 @@
     rowsHost.insertAdjacentHTML('beforeend', `
       <div class="coordinate-row" data-row="${i}">
         <span class="row-number">${i + 1}.</span>
-        <input name="easting-${i}" inputmode="numeric" maxlength="3" autocomplete="off" placeholder="065" aria-label="Location ${i + 1} Easting">
-        <input name="northing-${i}" inputmode="numeric" maxlength="3" autocomplete="off" placeholder="031" aria-label="Location ${i + 1} Northing">
+        <input name="easting-${i}" inputmode="numeric" maxlength="3" autocomplete="off" aria-label="Location ${i + 1} Easting">
+        <input name="northing-${i}" inputmode="numeric" maxlength="3" autocomplete="off" aria-label="Location ${i + 1} Northing">
       </div>`);
   }
 

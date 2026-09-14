@@ -1,6 +1,6 @@
 {
   "name": "everon-fia-cache-mapper",
-  "version": "1.3.6",
+  "version": "1.3.7",
   "private": true,
   "license": "CC-BY-NC-SA-4.0",
   "description": "Find and share FIA supply caches on the vanilla Everon, Arland and Kolguyev maps in Arma Reforger by entering coordinates or scanning your in-game shopping list.",

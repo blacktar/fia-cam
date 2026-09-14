@@ -1,6 +1,6 @@
 # FIA CaM
 
-FIA CaM is a fan-made Everon, Arland and Kolguyev cache mapper for *Arma Reforger*. Enter one to five FIA shopping-list coordinates to highlight their approximate 100-metre search squares, or photograph the list and extract its coordinates with local server-side OCR.
+FIA CaM helps *Arma Reforger* players find and share FIA supply caches on Everon, Arland and Kolguyev. Enter the coordinates from your in-game shopping list—or take a photo of it—to see every search area on the map and share the locations with your team.
 
 ## Features
 

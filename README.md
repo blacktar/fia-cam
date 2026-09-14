@@ -1,6 +1,6 @@
 # FIA CaM
 
-FIA CaM helps *Arma Reforger* players find and share FIA supply caches on Everon, Arland and Kolguyev. Enter the coordinates from your in-game shopping list—or take a photo of it—to see every search area on the map and share the locations with your team.
+FIA CaM helps players find and share FIA supply caches on the vanilla Everon, Arland and Kolguyev maps in *Arma Reforger*. Enter the coordinates from your in-game shopping list—or take a photo of it—to see every search area on the map and share the locations with your team.
 
 ## Features
 

@@ -3,7 +3,7 @@
   "version": "1.3.6",
   "private": true,
   "license": "CC-BY-NC-SA-4.0",
-  "description": "Find and share FIA supply caches on Everon, Arland and Kolguyev by entering coordinates or scanning your in-game shopping list.",
+  "description": "Find and share FIA supply caches on the vanilla Everon, Arland and Kolguyev maps in Arma Reforger by entering coordinates or scanning your in-game shopping list.",
   "scripts": { "start": "node server.js" },
   "dependencies": { "tesseract.js": "7.0.0" },
   "engines": { "node": ">=18" }

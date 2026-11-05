@@ -6,6 +6,26 @@
   const appShell = document.querySelector('.app-shell');
   const panel = document.querySelector('.panel');
   const legalNotice = document.querySelector('.legal-notice');
+  const shoppingListTooltip = document.querySelector('.tooltip');
+  const touchOnly = window.matchMedia('(hover: none)');
+
+  function closeShoppingListTooltip() {
+    shoppingListTooltip.classList.remove('is-open');
+    shoppingListTooltip.setAttribute('aria-expanded', 'false');
+    shoppingListTooltip.blur();
+  }
+
+  shoppingListTooltip.setAttribute('aria-expanded', 'false');
+  shoppingListTooltip.addEventListener('click', (event) => {
+    if (!touchOnly.matches) return;
+    event.preventDefault();
+    const opening = !shoppingListTooltip.classList.contains('is-open');
+    shoppingListTooltip.classList.toggle('is-open', opening);
+    shoppingListTooltip.setAttribute('aria-expanded', String(opening));
+  });
+  document.addEventListener('touchstart', (event) => {
+    if (!shoppingListTooltip.contains(event.target)) closeShoppingListTooltip();
+  }, { capture: true, passive: true });
 
   function arrangeMobileSections() {
     if (mobileLayout.matches) appShell.append(legalNotice);

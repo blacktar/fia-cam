@@ -57,6 +57,7 @@
   const canvas = document.querySelector('#map-canvas');
   const ctx = canvas.getContext('2d');
   const viewport = document.querySelector('#map-viewport');
+  const touchSurface = document.querySelector('#map-touch-surface');
   const rowsHost = document.querySelector('#coordinate-rows');
   const legend = document.querySelector('#legend');
   const count = document.querySelector('#location-count');
@@ -150,8 +151,24 @@
     state.y = h <= rect.height ? (rect.height - h) / 2 : Math.min(0, Math.max(rect.height - h, state.y));
   }
 
+  function positionTouchSurface(rect) {
+    const mapLeft = state.x;
+    const mapTop = state.y;
+    const mapRight = state.x + MAP.width * state.scale;
+    const mapBottom = state.y + MAP.height * state.scale;
+    const left = Math.max(0, mapLeft);
+    const top = Math.max(0, mapTop);
+    const right = Math.min(rect.width, mapRight);
+    const bottom = Math.min(rect.height, mapBottom);
+    touchSurface.style.left = `${left}px`;
+    touchSurface.style.top = `${top}px`;
+    touchSurface.style.width = `${Math.max(0, right - left)}px`;
+    touchSurface.style.height = `${Math.max(0, bottom - top)}px`;
+  }
+
   function draw() {
     const rect = viewport.getBoundingClientRect();
+    positionTouchSurface(rect);
     ctx.clearRect(0, 0, rect.width, rect.height);
     if (!state.mapReady) return;
     ctx.save();
@@ -757,10 +774,10 @@
     if (point) focusPoint(point);
   });
 
-  viewport.addEventListener('wheel', (event) => { event.preventDefault(); zoomAt(event.clientX, event.clientY, Math.exp(-event.deltaY * .0012)); }, { passive: false });
-  viewport.addEventListener('dblclick', (event) => zoomAt(event.clientX, event.clientY, 1.8));
-  viewport.addEventListener('pointerdown', (event) => {
-    viewport.setPointerCapture(event.pointerId);
+  touchSurface.addEventListener('wheel', (event) => { event.preventDefault(); zoomAt(event.clientX, event.clientY, Math.exp(-event.deltaY * .0012)); }, { passive: false });
+  touchSurface.addEventListener('dblclick', (event) => zoomAt(event.clientX, event.clientY, 1.8));
+  touchSurface.addEventListener('pointerdown', (event) => {
+    touchSurface.setPointerCapture(event.pointerId);
     state.pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
     if (state.pointers.size === 1) {
       state.pointerStartX = event.clientX;
@@ -772,9 +789,9 @@
     state.dragging = true;
     state.lastX = event.clientX;
     state.lastY = event.clientY;
-    viewport.classList.add('dragging');
+    touchSurface.classList.add('dragging');
   });
-  viewport.addEventListener('pointermove', (event) => {
+  touchSurface.addEventListener('pointermove', (event) => {
     showCursor(event.clientX, event.clientY);
     if (!state.pointers.has(event.pointerId)) return;
     if (Math.hypot(event.clientX - state.pointerStartX, event.clientY - state.pointerStartY) > 8) state.pointerMoved = true;
@@ -797,13 +814,13 @@
     const isMarkerTap = !state.pointerMoved && state.pointers.size === 1;
     state.pointers.delete(event.pointerId);
     state.pinchDistance = 0;
-    if (!state.pointers.size) { state.dragging = false; viewport.classList.remove('dragging'); }
+    if (!state.pointers.size) { state.dragging = false; touchSurface.classList.remove('dragging'); }
     else { const p = [...state.pointers.values()][0]; state.lastX = p.x; state.lastY = p.y; }
     if (isMarkerTap) focusMarkerAt(event.clientX, event.clientY);
   }
-  viewport.addEventListener('pointerup', endPointer);
-  viewport.addEventListener('pointercancel', endPointer);
-  viewport.addEventListener('pointerleave', () => {
+  touchSurface.addEventListener('pointerup', endPointer);
+  touchSurface.addEventListener('pointercancel', endPointer);
+  touchSurface.addEventListener('pointerleave', () => {
     if (!state.dragging) readout.innerHTML = '<span class="status-dot"></span>Move over the map';
   });
 

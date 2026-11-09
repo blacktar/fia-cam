@@ -30,7 +30,7 @@ function secureHeaders(response) {
   response.setHeader('X-Content-Type-Options', 'nosniff');
   response.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   response.setHeader('Permissions-Policy', 'camera=(self)');
-  response.setHeader('Content-Security-Policy', "default-src 'self'; img-src 'self' data: blob: https://*.tawk.to https://cdn.jsdelivr.net https://tawk.link https://s3.amazonaws.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.tawk.to https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://*.tawk.to; script-src 'self' 'sha256-KEQ6B0LvrIrYohGkglrRNA+UoR2G6XWwGjMtLujLrWI=' https://*.tawk.to https://cdn.jsdelivr.net; connect-src 'self' https://*.tawk.to wss://*.tawk.to; frame-src https://*.tawk.to; form-action https://*.tawk.to; object-src 'none'; base-uri 'self'; frame-ancestors 'none'");
+  response.setHeader('Content-Security-Policy', "default-src 'self'; img-src 'self' data: blob: https://*.tawk.to https://cdn.jsdelivr.net https://tawk.link https://s3.amazonaws.com https://www.google-analytics.com https://stats.g.doubleclick.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.tawk.to https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://*.tawk.to; script-src 'self' 'sha256-KEQ6B0LvrIrYohGkglrRNA+UoR2G6XWwGjMtLujLrWI=' https://*.tawk.to https://cdn.jsdelivr.net https://www.google-analytics.com; connect-src 'self' https://*.tawk.to wss://*.tawk.to https://www.google-analytics.com https://stats.g.doubleclick.net; frame-src https://*.tawk.to; form-action https://*.tawk.to; object-src 'none'; base-uri 'self'; frame-ancestors 'none'");
 }
 
 function withinRateLimit(address) {

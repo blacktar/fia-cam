@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://fiacam.com/sitemap.xml
+Sitemap: https://fiacam.vidarandersen.com/sitemap.xml

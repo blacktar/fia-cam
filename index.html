@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#111714">
-  <meta name="app-version" content="1.3.14">
+  <meta name="app-version" content="1.3.15">
   <meta name="robots" content="index, follow">
   <meta name="description" content="Find and share FIA supply caches on the vanilla Everon, Arland and Kolguyev maps in Arma Reforger by entering coordinates or scanning your in-game shopping list.">
   <link rel="canonical" href="https://fiacam.vidarandersen.com/">
@@ -51,15 +51,22 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Stardos+Stencil:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=1.3.14">
+  <link rel="stylesheet" href="styles.css?v=1.3.15">
 </head>
 <body>
   <main class="app-shell">
     <aside class="panel">
       <div class="brand">
-        <div class="eyebrow">FIELD TOOL · EVERON</div>
+        <div class="eyebrow">ARMA REFORGER · FIELD TOOL · EVERON</div>
         <h1>FIA Cache Mapper</h1>
-        <p>Tap the button below to snap a photo of your <span class="tooltip" tabindex="0" aria-describedby="shopping-list-tip">FIA shopping list <span class="tooltip-icon" aria-hidden="true">?</span><span class="tooltip-card" id="shopping-list-tip" role="tooltip">You'll find your FIA shopping list in your inventory. It's a list of coordinates to cached supplies. Find, use, resupply, protect.</span></span> with your phone or tablet and let the OCR magic instantly show you all cache locations on the map. (Tinfoil hats can enter the coordinates manually too.)</p>
+        <ol class="intro-steps">
+          <li>Select the map you're playing FIA on in the tabs below.</li>
+          <li>Tap the button below the tab with the camera icon on it.</li>
+          <li>Snap a photo of your <span class="tooltip" tabindex="0" aria-describedby="shopping-list-tip">FIA shopping list <span class="tooltip-icon" aria-hidden="true">?</span><span class="tooltip-card" id="shopping-list-tip" role="tooltip">You'll find your FIA shopping list in your inventory. It's a list of coordinates to cached supplies. Find, use, resupply, protect.</span></span> with your phone or tablet.</li>
+          <li>Boom! OCR magic shows you all glorious cache locations on the map.</li>
+          <li>Share link to mapped caches with team as needed.</li>
+        </ol>
+        <p class="intro-aside">(If you're a tinfoil hat, you can enter the coordinates manually too.)</p>
       </div>
 
       <nav class="map-tabs-wrap" aria-label="Map selection">
@@ -105,7 +112,7 @@
       </div>
 
       <footer class="legal-notice">
-        <p class="app-version">FIA CaM · v1.3.14</p>
+        <p class="app-version">FIA CaM · v1.3.15</p>
         <p>Unofficial, fan-made tool created by <a href="https://vidarandersen.com" target="_blank" rel="noopener noreferrer">blacktar</a>. <i>Arma Reforger</i>, the Everon, Arland and Kolguyev map imagery, and associated intellectual property belong to Bohemia Interactive a.s. This tool is not affiliated with or endorsed by Bohemia Interactive.</p>
         <p>The high-resolution Everon map was compiled and stitched from in-game screenshots by Steam Community creator Heisenburger. <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2816709014" target="_blank" rel="noopener noreferrer">View their original guide ↗</a></p>
         <p>Kolguyev map tiles were generated from <i>Arma Reforger</i> by <a href="https://reforger.recoil.org/kolguyev/" target="_blank" rel="noopener noreferrer">Bewilderbeest / Nick Ludlam at Recoil</a>, using the open-source <a href="https://github.com/nickludlam/EnfusionMapMaker" target="_blank" rel="noopener noreferrer">Enfusion Map Maker</a>. FIA CaM uses a modified, re-tiled and compressed copy under the non-commercial, Arma-only <a href="APL-SA.txt" target="_blank">Arma Public License Share Alike (APL-SA)</a>. The material is provided as-is, without warranty; attribution does not imply endorsement.</p>
@@ -163,8 +170,8 @@
       </div>
     </form>
   </dialog>
-  <script src="google-analytics.js?v=1.3.14"></script>
-  <script src="app.js?v=1.3.14"></script>
-  <script src="tawk-chat.js?v=1.3.14"></script>
+  <script src="google-analytics.js?v=1.3.15"></script>
+  <script src="app.js?v=1.3.15"></script>
+  <script src="tawk-chat.js?v=1.3.15"></script>
 </body>
 </html>

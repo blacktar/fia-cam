@@ -23,6 +23,10 @@ button { color: inherit; }
 .eyebrow { color: var(--gold); font-size: .73rem; font-weight: 800; letter-spacing: .15em; }
 h1 { margin: 8px 0 7px; font-family: "Stardos Stencil", Georgia, "Times New Roman", serif; font-size: clamp(2rem, 3vw, 2.65rem); line-height: .98; font-weight: 700; letter-spacing: -.025em; }
 .brand p { margin: 12px 0 24px; color: var(--muted); font-size: .92rem; line-height: 1.5; }
+.brand .intro-steps { margin: 14px 0 10px; padding-left: 1.35rem; color: var(--muted); font-size: .92rem; line-height: 1.45; }
+.brand .intro-steps li { padding-left: .18rem; }
+.brand .intro-steps li + li { margin-top: .38rem; }
+.brand .intro-aside { margin: 0 0 24px; font-size: .82rem; font-style: italic; line-height: 1.45; }
 .tooltip { position: relative; display: inline-block; color: #dce5df; font-weight: 700; text-decoration: underline dotted var(--gold); text-underline-offset: 3px; cursor: help; outline: none; }
 .tooltip-icon { display: inline-grid; place-items: center; width: 17px; height: 17px; margin-left: 2px; border: 1px solid #78877e; border-radius: 50%; color: var(--gold); font-size: .68rem; line-height: 1; text-decoration: none; vertical-align: 1px; }
 .tooltip-card { z-index: 10; position: absolute; top: calc(100% + 10px); left: 0; width: min(280px, calc(100vw - 52px)); padding: 12px 13px; border: 1px solid #4a5a50; border-radius: 7px; background: #202923; color: #dce4df; box-shadow: 0 14px 35px rgba(0,0,0,.45); font-size: .82rem; font-weight: 500; line-height: 1.45; text-decoration: none; opacity: 0; visibility: hidden; transform: translateY(-4px); transition: opacity .14s, transform .14s, visibility .14s; }

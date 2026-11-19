@@ -512,7 +512,7 @@
       tab.classList.toggle('active', active);
       tab.setAttribute('aria-selected', String(active));
     });
-    mapEyebrow.textContent = `FIELD TOOL · ${MAP.name.toUpperCase()}`;
+    mapEyebrow.textContent = `ARMA REFORGER · FIELD TOOL · ${MAP.name.toUpperCase()}`;
     mapPanel.setAttribute('aria-label', `Interactive ${MAP.name} map`);
     canvas.setAttribute('aria-label', `${MAP.name} map with plotted FIA grid squares`);
     loading.textContent = `Loading ${MAP.name} map…`;

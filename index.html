@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#111714">
-  <meta name="app-version" content="1.3.15">
+  <meta name="app-version" content="1.3.17">
   <meta name="robots" content="index, follow">
   <meta name="description" content="Find and share FIA supply caches on the vanilla Everon, Arland and Kolguyev maps in Arma Reforger by entering coordinates or scanning your in-game shopping list.">
   <link rel="canonical" href="https://fiacam.vidarandersen.com/">
@@ -51,7 +51,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Stardos+Stencil:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=1.3.15">
+  <link rel="stylesheet" href="styles.css?v=1.3.17">
 </head>
 <body>
   <main class="app-shell">
@@ -66,7 +66,7 @@
           <li>Boom! OCR magic shows you all glorious cache locations on the map.</li>
           <li>Share link to mapped caches with team as needed.</li>
         </ol>
-        <p class="intro-aside">(If you're a tinfoil hat, you can enter the coordinates manually too.)</p>
+        <p class="intro-aside">(If you're a tinfoil hat, you can enter the coordinates manually too.)<br><a class="video-help-link" id="open-how-it-works" href="https://youtube.com/shorts/PLXqBM_Yaiw?si=0qUd15fU016V7cCo">See how it works</a></p>
       </div>
 
       <nav class="map-tabs-wrap" aria-label="Map selection">
@@ -112,14 +112,21 @@
       </div>
 
       <footer class="legal-notice">
-        <p class="app-version">FIA CaM · v1.3.15</p>
+        <p class="app-version">FIA CaM · v1.3.17</p>
         <p>Unofficial, fan-made tool created by <a href="https://vidarandersen.com" target="_blank" rel="noopener noreferrer">blacktar</a>. <i>Arma Reforger</i>, the Everon, Arland and Kolguyev map imagery, and associated intellectual property belong to Bohemia Interactive a.s. This tool is not affiliated with or endorsed by Bohemia Interactive.</p>
-        <p>The high-resolution Everon map was compiled and stitched from in-game screenshots by Steam Community creator Heisenburger. <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2816709014" target="_blank" rel="noopener noreferrer">View their original guide ↗</a></p>
-        <p>Kolguyev map tiles were generated from <i>Arma Reforger</i> by <a href="https://reforger.recoil.org/kolguyev/" target="_blank" rel="noopener noreferrer">Bewilderbeest / Nick Ludlam at Recoil</a>, using the open-source <a href="https://github.com/nickludlam/EnfusionMapMaker" target="_blank" rel="noopener noreferrer">Enfusion Map Maker</a>. FIA CaM uses a modified, re-tiled and compressed copy under the non-commercial, Arma-only <a href="APL-SA.txt" target="_blank">Arma Public License Share Alike (APL-SA)</a>. The material is provided as-is, without warranty; attribution does not imply endorsement.</p>
-        <p>Local OCR is powered by <a href="https://github.com/naptha/tesseract.js" target="_blank" rel="noopener noreferrer">Tesseract.js</a> and the <a href="https://github.com/tesseract-ocr/tesseract" target="_blank" rel="noopener noreferrer">Tesseract OCR engine</a>, licensed under Apache 2.0. See the bundled <a href="THIRD_PARTY_NOTICES.txt" target="_blank">third-party notices</a> and <a href="APACHE-2.0.txt" target="_blank">license</a>.</p>
-        <p>The Stardos Stencil headline font was designed by Vernon Adams and is served by Google Fonts under the <a href="STARDOS-STENCIL-OFL.txt" target="_blank">SIL Open Font License 1.1</a>. FIA CaM's original material is licensed under <a href="LICENSE" target="_blank">CC BY-NC-SA 4.0</a>; third-party material remains under its respective licence. <a href="https://github.com/blacktar/fia-cam" target="_blank" rel="noopener noreferrer">View FIA CaM on GitHub ↗</a></p>
-        <p>Support chat is provided by <a href="https://www.tawk.to/" target="_blank" rel="noopener noreferrer">tawk.to</a>. Loading FIA CaM connects your browser to tawk.to so the chat widget can operate; messages and related connection data are handled under the <a href="https://www.tawk.to/privacy-policy/" target="_blank" rel="noopener noreferrer">tawk.to Privacy Policy</a>.</p>
-        <p>Visitor traffic is measured with Google Analytics using the same analytics property as vidarandersen.com. Google may receive usage and device information when FIA CaM loads. See <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google's Privacy Policy</a>.</p>
+        <p>FIA CaM's original material is licensed under <a href="LICENSE" target="_blank">CC BY-NC-SA 4.0</a>; third-party material remains under its respective licence. <a href="https://github.com/blacktar/fia-cam" target="_blank" rel="noopener noreferrer">View FIA CaM on GitHub ↗</a></p>
+        <details class="fine-print">
+          <summary>Acknowledgements, fine print, etc...</summary>
+          <div class="fine-print-content">
+            <p>The high-resolution Everon map was compiled and stitched from in-game screenshots by Steam Community creator Heisenburger. <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=2816709014" target="_blank" rel="noopener noreferrer">View their original guide ↗</a></p>
+            <p>Kolguyev map tiles were generated from <i>Arma Reforger</i> by <a href="https://reforger.recoil.org/kolguyev/" target="_blank" rel="noopener noreferrer">Bewilderbeest / Nick Ludlam at Recoil</a>, using the open-source <a href="https://github.com/nickludlam/EnfusionMapMaker" target="_blank" rel="noopener noreferrer">Enfusion Map Maker</a>. FIA CaM uses a modified, re-tiled and compressed copy under the non-commercial, Arma-only <a href="APL-SA.txt" target="_blank">Arma Public License Share Alike (APL-SA)</a>. The material is provided as-is, without warranty; attribution does not imply endorsement.</p>
+            <p>Local OCR is powered by <a href="https://github.com/naptha/tesseract.js" target="_blank" rel="noopener noreferrer">Tesseract.js</a> and the <a href="https://github.com/tesseract-ocr/tesseract" target="_blank" rel="noopener noreferrer">Tesseract OCR engine</a>, licensed under Apache 2.0. See the bundled <a href="THIRD_PARTY_NOTICES.txt" target="_blank">third-party notices</a> and <a href="APACHE-2.0.txt" target="_blank">license</a>.</p>
+            <p>The Stardos Stencil headline font was designed by Vernon Adams and is served by Google Fonts under the <a href="STARDOS-STENCIL-OFL.txt" target="_blank">SIL Open Font License 1.1</a>.</p>
+            <p>Support chat is provided by <a href="https://www.tawk.to/" target="_blank" rel="noopener noreferrer">tawk.to</a>. Loading FIA CaM connects your browser to tawk.to so the chat widget can operate; messages and related connection data are handled under the <a href="https://www.tawk.to/privacy-policy/" target="_blank" rel="noopener noreferrer">tawk.to Privacy Policy</a>.</p>
+            <p>Visitor traffic is measured with Google Analytics using the same analytics property as vidarandersen.com. Google may receive usage and device information when FIA CaM loads. See <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google's Privacy Policy</a>.</p>
+            <p>The how-it-works video is embedded from YouTube using its privacy-enhanced player. Opening the video connects your browser to YouTube. See <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">Google's Privacy Policy</a>.</p>
+          </div>
+        </details>
       </footer>
     </aside>
 
@@ -139,6 +146,18 @@
       </div>
     </section>
   </main>
+
+  <dialog class="video-dialog" id="how-it-works-dialog" aria-labelledby="how-it-works-title">
+    <div class="video-card">
+      <div class="video-heading">
+        <span id="how-it-works-title">How FIA CaM works</span>
+        <button class="dialog-close" id="close-how-it-works" type="button" aria-label="Close video">×</button>
+      </div>
+      <div class="video-frame">
+        <iframe id="how-it-works-video" data-src="https://www.youtube-nocookie.com/embed/PLXqBM_Yaiw?controls=1&amp;playsinline=1&amp;rel=0" title="How FIA CaM works" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+      </div>
+    </div>
+  </dialog>
 
   <dialog class="scanner-dialog" id="scanner-dialog" aria-labelledby="scanner-title">
     <form method="dialog" class="scanner-card">
@@ -170,8 +189,8 @@
       </div>
     </form>
   </dialog>
-  <script src="google-analytics.js?v=1.3.15"></script>
-  <script src="app.js?v=1.3.15"></script>
-  <script src="tawk-chat.js?v=1.3.15"></script>
+  <script src="google-analytics.js?v=1.3.17"></script>
+  <script src="app.js?v=1.3.17"></script>
+  <script src="tawk-chat.js?v=1.3.17"></script>
 </body>
 </html>

@@ -103,6 +103,9 @@
   const rowEls = [...document.querySelectorAll('.coordinate-row')];
   const inputs = rowEls.flatMap((row) => [...row.querySelectorAll('input')]);
   const scannerDialog = document.querySelector('#scanner-dialog');
+  const howItWorksLink = document.querySelector('#open-how-it-works');
+  const howItWorksDialog = document.querySelector('#how-it-works-dialog');
+  const howItWorksVideo = document.querySelector('#how-it-works-video');
   const photoInput = document.querySelector('#shopping-list-photo');
   const photoPreview = document.querySelector('#photo-preview');
   const photoPreviewImage = document.querySelector('#photo-preview-image');
@@ -115,6 +118,18 @@
   let photoObjectUrl = '';
   let scannedCoordinates = [];
   let resizeFrame = 0;
+
+  howItWorksLink.addEventListener('click', (event) => {
+    event.preventDefault();
+    howItWorksVideo.src = howItWorksVideo.dataset.src;
+    howItWorksDialog.showModal();
+  });
+
+  document.querySelector('#close-how-it-works').addEventListener('click', () => howItWorksDialog.close());
+  howItWorksDialog.addEventListener('click', (event) => {
+    if (event.target === howItWorksDialog) howItWorksDialog.close();
+  });
+  howItWorksDialog.addEventListener('close', () => howItWorksVideo.removeAttribute('src'));
 
   function maximumScaleFor(rect) {
     // At maximum zoom, retain about four complete grid squares along the

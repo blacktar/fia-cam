@@ -121,7 +121,9 @@
 
   howItWorksLink.addEventListener('click', (event) => {
     event.preventDefault();
-    howItWorksVideo.src = howItWorksVideo.dataset.src;
+    const embedUrl = new URL(howItWorksVideo.dataset.src);
+    embedUrl.searchParams.set('origin', window.location.origin);
+    howItWorksVideo.src = embedUrl.toString();
     howItWorksDialog.showModal();
   });
 
